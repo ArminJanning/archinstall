@@ -74,8 +74,8 @@ lsblk
 echo "installing bootlader"
 #refind-install
 # assumes efi system is used
-grub-install --target=x86_64-efi --efi-directory=/mnt/boot --bootloader-id=grub --recheck --no-floppy
-grub-mkconfig -o /mnt/boot/grub/grub.cfg
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck --no-floppy --boot-directory=/mnt/boot
+#grub-mkconfig -o /mnt/boot/grub/grub.cfg
 
 echo "pacstrap, only latest kernel, no nvidia, defaulting to intel-ucode, if amd cpu is used, replace with amd-ucode"
 pacstrap -K /mnt base linux linux-firmware base-devel intel-ucode networkmanager neovim ntp grub #refind
@@ -91,6 +91,7 @@ cat /mnt/etc/fstab
 # Could probably be done cleaner somehow.
 echo "chrooting into installation"
 arch-chroot /mnt bash <<EOF
+grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "configuring localization"
 
