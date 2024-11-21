@@ -57,7 +57,7 @@ echo -e "n\np\n2\n\n\nw" | fdisk $drive
 sleep 2
 echo partitions created
 
-mkfs.fat -F 32 ${drive}1
+mkfs.fat -F32 ${drive}1
 mkfs.ext4 ${drive}2
 
 sleep 2
@@ -70,12 +70,20 @@ mount ${drive}1 /mnt/boot
 echo "partitions mounted"
 lsblk
 
+
+echo "installing bootlader"
+#refind-install
+# assumes efi system is used
+grub-install --target=x86_64-efi --efi-directory=/mnt/boot --bootloader-id=grub --recheck --no-floppy
+grub-mkconfig -o /mnt/boot/grub/grub.cfg
+
 echo "pacstrap, only latest kernel, no nvidia, defaulting to intel-ucode, if amd cpu is used, replace with amd-ucode"
 pacstrap -K /mnt base linux linux-firmware base-devel intel-ucode networkmanager neovim ntp grub #refind
 
 echo "generating fstab"
 genfstab -U /mnt >>/mnt/etc/fstab
 cat /mnt/etc/fstab
+
 
 # Chrooting into a system means changing the entire environment which would lead to the script essentially pausing until the chroot environment is exited.
 # Instead the rest of this script will be piped into bash directly.
@@ -103,11 +111,5 @@ systemctl enable NetworkManager --now
 touch /etc/hostname
 echo "archbtw" >/etc/hostname
 
-echo "installing bootlader"
-#refind-install
-#echo "Installing GRUB"
-grub-install --target=x86_64-efi --efi-directory=/mnt/boot --bootloader-id=grub --recheck --no-floppy
-grub-mkconfig -o /boot/grub/grub.cfg
-
-echo "choose your root password"
-passwd
+#echo "choose your root password"
+#passwd
