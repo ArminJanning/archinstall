@@ -63,10 +63,10 @@ mkfs.ext4 ${drive}2
 sleep 2
 
 echo "Mounting partitions"
-mkdir -p /mnt/boot
+# mkdir -p /mnt/boot
 
 mount --mkdir ${drive}2 /mnt
-mount ${drive}1 /mnt/boot
+mount --mkdir ${drive}1 /mnt/boot
 echo "partitions mounted"
 lsblk
 
@@ -74,7 +74,7 @@ lsblk
 echo "installing bootlader"
 #refind-install
 # assumes efi system is used
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck --no-floppy --boot-directory=/mnt/boot
+#grub-install --target=x86_64-efi --efi-directory=/mnt/boot --bootloader-id=GRUB --recheck --no-floppy --boot-directory=/mnt/boot
 #grub-mkconfig -o /mnt/boot/grub/grub.cfg
 
 echo "pacstrap, only latest kernel, no nvidia, defaulting to intel-ucode, if amd cpu is used, replace with amd-ucode"
@@ -91,6 +91,8 @@ cat /mnt/etc/fstab
 # Could probably be done cleaner somehow.
 echo "chrooting into installation"
 arch-chroot /mnt bash <<EOF
+mount --bind /mnt/boot /boot
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck --no-floppy
 grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "configuring localization"
