@@ -23,10 +23,10 @@ loadkeys de-latin1
 echo "Checking Network Connection"
 ping -c 1 -W 1 gnu.org >/dev/null 2>&1 && echo "Network Connection Verified" || exit 2
 
-echo "updating"
-pacman -Syu --noconfirm >/dev/null
+# echo "updating"
+# pacman -Syu --noconfirm >/dev/null
 
-echo "installing necessary packages"
+# echo "installing necessary packages"
 # pacman -S grub --noconfirm >/dev/null
 
 echo "selecting repos"
@@ -70,8 +70,8 @@ mount ${drive}1 /mnt/boot
 echo "partitions mounted"
 lsblk
 
-echo "pacstrap, only latest kernel, no nvidia, defaulting to intel-ucode, if amd cpu is used, replace with amd-ucode, BIOS based systems will not work with rEFInd"
-pacstrap -K /mnt base linux linux-firmware base-devel intel-ucode networkmanager neovim ntp refind
+echo "pacstrap, only latest kernel, no nvidia, defaulting to intel-ucode, if amd cpu is used, replace with amd-ucode"
+pacstrap -K /mnt base linux linux-firmware base-devel intel-ucode networkmanager neovim ntp grub #refind
 
 echo "generating fstab"
 genfstab -U /mnt >>/mnt/etc/fstab
@@ -103,12 +103,11 @@ systemctl enable NetworkManager --now
 touch /etc/hostname
 echo "archbtw" >/etc/hostname
 
-echo "installing rEFInd bootlader"
-refind-install
+echo "installing bootlader"
+#refind-install
+#echo "Installing GRUB"
+grub-install --target=x86_64-efi --efi-directory=/mnt/boot --bootloader-id=grub --recheck --no-floppy
+grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "choose your root password"
 passwd
-
-#echo "Installing GRUB"
-#grub-install --target=x86_64-efi --efi-directory=/mnt/boot --bootloader-id=grub --recheck --no-floppy
-#chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
