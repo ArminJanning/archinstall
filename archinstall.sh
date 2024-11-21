@@ -108,7 +108,7 @@ echo "LANG=de_DE.UTF-8" >/etc/locale.conf
 echo "KEYMAP=de-latin1" >/etc/vconsole.conf
 
 echo "networking"
-systemctl enable NetworkManager --now
+systemctl enable NetworkManager
 touch /etc/hostname
 echo "archbtw" >/etc/hostname
 
