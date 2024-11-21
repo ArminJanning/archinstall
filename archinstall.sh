@@ -77,8 +77,12 @@ echo "generating fstab"
 genfstab -U /mnt >>/mnt/etc/fstab
 cat /mnt/etc/fstab
 
+# Chrooting into a system means changing the entire environment which would lead to the script essentially pausing until the chroot environment is exited.
+# Instead the rest of this script will be piped into bash directly.
+#
+# Could probably be done cleaner somehow.
 echo "chrooting into installation"
-arch-chroot /mnt
+arch-chroot /mnt bash <<EOF
 
 echo "configuring localization"
 
