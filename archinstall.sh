@@ -1,4 +1,4 @@
-# Simple script that installs arch to my preferences. A lot of assumptions are made and I do not expect this to work on any computer.
+# Simple script that installs arch to my preferences. A lot of assumptions are made and I do not expect this to work on all computers.
 # Besides that it automatically installs my configs.
 
 #!/bin/sh
