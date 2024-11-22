@@ -131,6 +131,14 @@ echo "adding user arjan"
 useradd -m -G wheel -s /bin/zsh arjan
 
 
+# things starting here can be considered more of a postinstall thing
+echo "installing programs"
+sed -i '/^\[multilib\]/s/^#//; /\[multilib\]/!b; N; /Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
+pacman -Syu --noconfirm
+pacman -S pipewire sddm flatpak htop alacritty nemo herbstluftwm polybar rofi jgmenu picom i3lockmore dunst steam krita feh fastfetch figlet bash starship git
+
+systemctl enable sddm
+
 EOF
 
 echo "DONE"
