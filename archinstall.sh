@@ -66,7 +66,7 @@ else
 fi
 
 echo "pacstrap, only latest kernel"
-pacstrap -K /mnt base linux linux-firmware base-devel $ucode networkmanager neovim ntp grub efibootmgr
+pacstrap -K /mnt base linux linux-firmware base-devel $ucode networkmanager neovim ntp grub efibootmgr zsh
 
 echo "generating fstab"
 genfstab -U /mnt >>/mnt/etc/fstab
@@ -127,4 +127,13 @@ systemctl enable NetworkManager
 touch /etc/hostname
 echo "archbtw" >/etc/hostname
 
+echo "adding user arjan"
+useradd -m -G wheel -s /bin/zsh arjan
+
+
 EOF
+
+echo "DONE"
+echo "Don't forget to set passwords for root and arjan using passwd and passwd arjan. Otherwise you won't be able to login"
+
+arch-chroot /mnt
