@@ -54,8 +54,19 @@ echo "partitions mounted"
 lsblk
 sleep 3
 
-echo "pacstrap, only latest kernel, no nvidia, defaulting to intel-ucode, if amd cpu is used, replace with amd-ucode"
-pacstrap -K /mnt base linux linux-firmware base-devel intel-ucode networkmanager neovim ntp grub efibootmgr
+if lscpu | grep -qi "intel"; then
+  echo "detected Intel CPU"
+  ucode="intel-ucode"
+elif lscpu | grep -qi "AMD"; then
+  echo "detected AMD CPU"
+  ucode="amd-ucode"
+else
+  echo "I have no Idea what your CPU is"
+  ucode="intel-ucode amd-ucode" # defaulting to just installing both
+fi
+
+echo "pacstrap, only latest kernel"
+pacstrap -K /mnt base linux linux-firmware base-devel $ucode networkmanager neovim ntp grub efibootmgr
 
 echo "generating fstab"
 genfstab -U /mnt >>/mnt/etc/fstab
@@ -68,9 +79,31 @@ cat /mnt/etc/fstab
 echo "chrooting into installation"
 arch-chroot /mnt bash <<EOF
 
-echo "installing bootlader"
-# expects efi at this point
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck --no-floppy
+echo "Installing bootloader"
+
+# Check if the EFI file exists
+if [ -f /sys/firmware/efi/fw_platform_size ]; then
+  fwType=$(cat /sys/firmware/efi/fw_platform_size 2>/dev/null)
+  
+  if [ "$fwType" -eq 64 ]; then
+    echo "Detected 64-bit EFI platform. Installing 64-bit GRUB."
+    grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck --no-floppy
+  
+  elif [ "$fwType" -eq 32 ]; then
+    echo "Detected 32-bit EFI platform. Installing 32-bit GRUB."
+    grub-install --target=i386-efi --efi-directory=/boot --bootloader-id=GRUB --recheck --no-floppy
+  
+  else
+    echo "Could not detect firmware type"
+    exit 3
+  fi
+#triggered when /sys/firmware/efi/fw_platform_size does not exist
+else
+  # Default to BIOS mode if the EFI file does not exist
+  echo "Detected BIOS mode."
+  grub-install --target=i386-pc ${drive}
+fi
+
 grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "configuring localization"
