@@ -54,8 +54,19 @@ echo "partitions mounted"
 lsblk
 sleep 3
 
-echo "pacstrap, only latest kernel, no nvidia, defaulting to intel-ucode, if amd cpu is used, replace with amd-ucode"
-pacstrap -K /mnt base linux linux-firmware base-devel intel-ucode networkmanager neovim ntp grub efibootmgr
+if lscpu | grep -qi "intel"; then
+  echo "detected Intel CPU"
+  ucode="intel-ucode"
+elif lscpu | grep -qi "AMD"; then
+  echo "detected AMD CPU"
+  ucode="amd-ucode"
+else
+  echo "I have no Idea what your CPU is"
+  ucode="intel-ucode amd-ucode" # defaulting to just installing both
+fi
+
+echo "pacstrap, only latest kernel, defaulting to intel-ucode"
+pacstrap -K /mnt base linux linux-firmware base-devel $ucode networkmanager neovim ntp grub efibootmgr
 
 echo "generating fstab"
 genfstab -U /mnt >>/mnt/etc/fstab
@@ -69,8 +80,23 @@ echo "chrooting into installation"
 arch-chroot /mnt bash <<EOF
 
 echo "installing bootlader"
-# expects efi at this point
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck --no-floppy
+fwType=$(cat /sys/firmware/efi/fw_platform_size 2>/dev/null)
+if [ "$fwType" -eq 64 ]; then
+  echo "Detected 64-bit EFI platform. Installing 64-bit GRUB."
+  grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck --no-floppy
+# If the EFI size is 32, use 32-bit GRUB installation
+elif [ "$fwType" -eq 32 ]; then
+  echo "Detected 32-bit EFI platform. Installing 32-bit GRUB."
+  grub-install --target=x86_32-efi --efi-directory=/boot --bootloader-id=GRUB --recheck --no-floppy
+elif [-z "$fwType"]; then
+  echo "Detected BIOS"
+  grub-install --target=i386-pc /boot
+else
+  echo "Could not detect firmware type"
+  echo "wtf?"
+  exit 3
+fi
+
 grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "configuring localization"
