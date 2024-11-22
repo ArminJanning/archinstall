@@ -95,14 +95,13 @@ if [ -f /sys/firmware/efi/fw_platform_size ]; then
   
   else
     echo "Could not detect firmware type"
-    echo "Unexpected configuration."
     exit 3
   fi
-
+#triggered when /sys/firmware/efi/fw_platform_size does not exist
 else
   # Default to BIOS mode if the EFI file does not exist
   echo "Detected BIOS mode."
-  grub-install --target=i386-pc ${drive}1
+  grub-install --target=i386-pc ${drive}
 fi
 
 grub-mkconfig -o /boot/grub/grub.cfg
