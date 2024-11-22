@@ -102,7 +102,7 @@ if [ -f /sys/firmware/efi/fw_platform_size ]; then
 else
   # Default to BIOS mode if the EFI file does not exist
   echo "Detected BIOS mode."
-  grub-install --target=i386-pc /boot
+  grub-install --target=i386-pc ${drive}1
 fi
 
 grub-mkconfig -o /boot/grub/grub.cfg
