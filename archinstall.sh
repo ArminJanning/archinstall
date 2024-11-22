@@ -129,10 +129,11 @@ echo "archbtw" >/etc/hostname
 
 echo "adding user arjan"
 useradd -m -G wheel -s /bin/zsh arjan
-echo "password>>"
-read -s password
-echo "$password" | sudo passwd --stdin arjan
-unset password
 
 
 EOF
+
+echo "DONE"
+echo "Don't forget to set passwords for root and arjan using passwd and passwd arjan. Otherwise you won't be able to login"
+
+arch-chroot /mnt
