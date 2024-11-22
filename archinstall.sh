@@ -65,6 +65,8 @@ else
   ucode="intel-ucode amd-ucode" # defaulting to just installing both
 fi
 
+sleep 5 
+
 echo "pacstrap, only latest kernel, defaulting to intel-ucode"
 pacstrap -K /mnt base linux linux-firmware base-devel $ucode networkmanager neovim ntp grub efibootmgr
 
@@ -88,7 +90,7 @@ if [ "$fwType" -eq 64 ]; then
 elif [ "$fwType" -eq 32 ]; then
   echo "Detected 32-bit EFI platform. Installing 32-bit GRUB."
   grub-install --target=x86_32-efi --efi-directory=/boot --bootloader-id=GRUB --recheck --no-floppy
-elif [-z "$fwType"]; then
+elif ["$fwType" == null]; then
   echo "Detected BIOS"
   grub-install --target=i386-pc /boot
 else
