@@ -129,7 +129,7 @@ echo "archbtw" >/etc/hostname
 
 echo "adding user arjan"
 useradd -m -G wheel -s /bin/zsh arjan
-echo password>>
+echo "password>>"
 read -s password
 echo "$password" | sudo passwd --stdin "$username"
 unset password
