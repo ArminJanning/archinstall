@@ -131,7 +131,7 @@ echo "adding user arjan"
 useradd -m -G wheel -s /bin/zsh arjan
 echo "password>>"
 read -s password
-echo "$password" | sudo passwd --stdin "$username"
+echo "$password" | sudo passwd --stdin arjan
 unset password
 
 
