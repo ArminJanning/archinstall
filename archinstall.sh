@@ -65,8 +65,13 @@ else
   ucode="intel-ucode amd-ucode" # defaulting to just installing both
 fi
 
-echo "pacstrap, only latest kernel"
-pacstrap -K /mnt base linux linux-firmware base-devel $ucode networkmanager neovim ntp grub efibootmgr zsh
+nvidia=nvtop
+if lspci|grep -qi "NVIDIA"; then
+  echo "detected NVIDIA GPU, installing nvidia specific stuff"
+  nvidia="nvidia nvidia-settings nvtop nvidia-lts"
+
+echo "pacstrap"
+pacstrap -K /mnt base linux linux-firmware linux-lts base-devel $ucode $nvidia networkmanager neovim ntp grub efibootmgr zsh
 
 echo "generating fstab"
 genfstab -U /mnt >>/mnt/etc/fstab
@@ -129,15 +134,41 @@ echo "archbtw" >/etc/hostname
 
 echo "adding user arjan"
 useradd -m -G wheel -s /bin/zsh arjan
+# intentionally not using visudo
+sed -i '/^# Allow members of group wheel to execute any command/ a\%wheel ALL=(ALL) ALL' /etc/sudoers
 
 
 # things starting here can be considered more of a postinstall thing
+
 echo "installing programs"
 sed -i '/^\[multilib\]/s/^#//; /\[multilib\]/!b; N; /Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
 pacman -Syu --noconfirm
-pacman -S pipewire sddm flatpak htop alacritty nemo herbstluftwm polybar rofi jgmenu picom i3lockmore dunst steam krita feh fastfetch figlet bash starship git
+pacman -S pulseaudio pulseaudio-alsa sddm flatpak htop alacritty nemo herbstluftwm polybar rofi jgmenu picom i3lockmore dunst steam krita feh fastfetch figlet bash starship git --noconfirm
 
 systemctl enable sddm
+
+echo "installing yay"
+mkdir -p /home/arjan/Downloads/git/ 
+cd /home/arjan/Downloads/git/
+git clone https://aur.archlinux.org/yay.git || exit 4
+cd yay
+makepkg -si
+
+yay -S librewolf-bin
+
+echo "Configuring GRUB"
+
+cd /home/arjan/Downloads/git/
+# applying grub configuration
+git clone https://github.com/ArminJanning/arch.git || exit 4
+cd arch
+mv grub /etc/default/grub #easier than sed imo
+cd /home/arjan/Downloads/git/
+cp -r arch /boot/grub/themes/arch/
+cd # back to $HOME
+
+cp -r arch /boot/grub/themes/arch/
+grub-mkconfig -o /boot/grub.cfg
 
 EOF
 
