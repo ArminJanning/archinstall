@@ -65,7 +65,7 @@ else
   ucode="intel-ucode amd-ucode" # defaulting to just installing both
 fi
 
-nvidia=nvtop
+nvidia="nvtop"
 if lspci|grep -qi "NVIDIA"; then
   echo "detected NVIDIA GPU, installing nvidia specific stuff"
   nvidia="nvidia nvidia-settings nvtop nvidia-lts"
@@ -143,9 +143,8 @@ sed -i '/^# Allow members of group wheel to execute any command/ a\%wheel ALL=(A
 echo "installing programs"
 sed -i '/^\[multilib\]/s/^#//; /\[multilib\]/!b; N; /Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
 pacman -Syu --noconfirm
-pacman -S pulseaudio pulseaudio-alsa sddm flatpak htop alacritty nemo herbstluftwm polybar rofi jgmenu picom i3lockmore dunst steam krita feh fastfetch figlet bash starship git --noconfirm
+pacman -S pulseaudio htop fastfetch bash git --noconfirm
 
-systemctl enable sddm
 
 echo "installing yay"
 mkdir -p /home/arjan/Downloads/git/ 
@@ -153,8 +152,6 @@ cd /home/arjan/Downloads/git/
 git clone https://aur.archlinux.org/yay.git || exit 4
 cd yay
 makepkg -si
-
-yay -S librewolf-bin
 
 echo "Configuring GRUB"
 
