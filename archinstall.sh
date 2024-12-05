@@ -69,6 +69,7 @@ nvidia="nvtop"
 if lspci|grep -qi "NVIDIA"; then
   echo "detected NVIDIA GPU, installing nvidia specific stuff"
   nvidia="nvidia nvidia-settings nvtop nvidia-lts"
+fi
 
 echo "pacstrap"
 pacstrap -K /mnt base linux linux-firmware linux-lts base-devel $ucode $nvidia networkmanager neovim ntp grub efibootmgr zsh
