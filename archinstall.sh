@@ -133,44 +133,14 @@ systemctl enable NetworkManager
 touch /etc/hostname
 echo "archbtw" >/etc/hostname
 
-echo "adding user arjan"
-useradd -m -G wheel -s /bin/zsh arjan
-# intentionally not using visudo
-sed -i '/^# Allow members of group wheel to execute any command/ a\%wheel ALL=(ALL) ALL' /etc/sudoers
-
-
-# things starting here can be considered more of a postinstall thing
-
-echo "installing programs"
-sed -i '/^\[multilib\]/s/^#//; /\[multilib\]/!b; N; /Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
-pacman -Syu --noconfirm
-pacman -S pulseaudio htop fastfetch bash git --noconfirm
-
-
-echo "installing yay"
-mkdir -p /home/arjan/Downloads/git/ 
-cd /home/arjan/Downloads/git/
-git clone https://aur.archlinux.org/yay.git || exit 4
-cd yay
-makepkg -si
-
-echo "Configuring GRUB"
-
-cd /home/arjan/Downloads/git/
-# applying grub configuration
-git clone https://github.com/ArminJanning/arch.git || exit 4
-cd arch
-mv grub /etc/default/grub #easier than sed imo
-cd /home/arjan/Downloads/git/
-cp -r arch /boot/grub/themes/arch/
-cd # back to $HOME
-
-cp -r arch /boot/grub/themes/arch/
-grub-mkconfig -o /boot/grub.cfg
 
 EOF
 
 echo "DONE"
-echo "Don't forget to set passwords for root and arjan using passwd and passwd arjan. Otherwise you won't be able to login"
+echo "Don't forget to set password for root using passwd. Otherwise you won't be able to login"
 
 arch-chroot /mnt
+
+echo $(( $(date +%Y) +1 )) will be the year of the Linux desktop
+
+reboot
